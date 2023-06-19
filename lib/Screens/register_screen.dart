@@ -211,14 +211,18 @@ class RegisterScreen extends ConsumerWidget {
                                             signupPvd.emailController.text);
                                         if (validateEmail == true) {
                                           final userDetails = UserDetailsItem()
-                                            ..email =
-                                                signupPvd.emailController.text
-                                            ..name =
-                                                signupPvd.nameController.text
+                                            ..email = signupPvd
+                                                .emailController.text
+                                                .trim()
+                                            ..name = signupPvd
+                                                .nameController.text
+                                                .trim()
                                             ..password = signupPvd
                                                 .passwordController.text
-                                            ..phoneNo =
-                                                signupPvd.phoneController.text
+                                                .trim()
+                                            ..phoneNo = signupPvd
+                                                .phoneController.text
+                                                .trim()
                                             ..profession =
                                                 signupPvd.dropdownValue;
                                           signupPvd

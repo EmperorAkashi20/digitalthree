@@ -80,7 +80,19 @@ class Login extends ConsumerWidget {
                       child: IconButton(
                         color: Colors.white,
                         onPressed: () {
-                          loginPvd.login();
+                          if (loginPvd.emailController.text.isNotEmpty &&
+                              loginPvd.passwordController.text.isNotEmpty) {
+                            loginPvd.login();
+                          } else {
+                            const SnackBar snackBar = SnackBar(
+                              duration: Duration(seconds: 1),
+                              content: Text(
+                                "Fields cannot be empty",
+                              ),
+                            );
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(snackBar);
+                          }
                         },
                         icon: const Icon(Icons.arrow_forward),
                       ),

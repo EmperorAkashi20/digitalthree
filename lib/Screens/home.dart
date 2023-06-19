@@ -1,11 +1,10 @@
 library home;
 
 import 'package:digital_three/Providers/home_provider.dart';
+import 'package:digital_three/models/movie_model_new.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-
-import '../models/moview_model.dart';
 
 class Home extends ConsumerWidget {
   static const ROUTE_NAME = "/home";
@@ -14,12 +13,13 @@ class Home extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     double windowHeight = MediaQuery.of(context).size.height;
-    final moviePvd = ref.watch(movieProvider);
+    // final moviePvd = ref.watch(movieProvider);
+    final moviePvd = ref.watch(movieProvider1);
     Widget child;
 
     child = Consumer(builder: (context, ref, child) {
       return moviePvd.when(
-        data: (movieModel) => buildMovieList(movieModel),
+        data: (movieModelNew) => buildMovieList(movieModelNew),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => Text('Error: $error'),
       );
@@ -86,15 +86,16 @@ class Home extends ConsumerWidget {
     );
   }
 
-  Widget buildMovieList(MovieModel movieModel) {
+  Widget buildMovieList(MovieModelNew movieModel) {
     return ListView.builder(
-      itemCount: movieModel.results.length,
+      itemCount: movieModel.result.length,
       itemBuilder: (context, index) {
         double windowHeight = MediaQuery.of(context).size.height;
         double windowWidth = MediaQuery.of(context).size.width;
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
           child: Card(
+            elevation: 4,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
             ),
@@ -114,22 +115,22 @@ class Home extends ConsumerWidget {
                           children: [
                             const Icon(
                               Icons.arrow_drop_up,
-                              size: 70,
+                              size: 40,
                             ),
                             Text(
-                              movieModel.results
+                              movieModel.result
                                   .elementAt(index)
-                                  .voteCount
+                                  .totalVoted
                                   .toString(),
-                              style: const TextStyle(fontSize: 30),
+                              style: const TextStyle(fontSize: 25),
                             ),
                             const Icon(
                               Icons.arrow_drop_down,
-                              size: 70,
+                              size: 40,
                             ),
                             const Text(
                               'Votes',
-                              style: TextStyle(fontSize: 20),
+                              style: TextStyle(fontSize: 15),
                             ),
                           ],
                         ),
@@ -138,95 +139,115 @@ class Home extends ConsumerWidget {
                           height: windowHeight * 0.2,
                           width: windowWidth * 0.25,
                           decoration: BoxDecoration(
-                              image: const DecorationImage(
-                                image: NetworkImage(
-                                    "https://images.pexels.com/photos/674010/pexels-photo-674010.jpeg?cs=srgb&dl=pexels-anjana-c-674010.jpg&fm=jpg"),
+                              image: DecorationImage(
+                                image: NetworkImage(movieModel.result
+                                    .elementAt(index)
+                                    .poster
+                                    .toString()),
                                 fit: BoxFit.fill,
                               ),
                               borderRadius: BorderRadius.circular(10)),
                         ),
                         const SizedBox(width: 10),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              movieModel.results
-                                  .elementAt(index)
-                                  .originalTitle
-                                  .toString(),
-                              style: const TextStyle(fontSize: 15),
-                            ),
-                            RichText(
-                              text: TextSpan(
-                                text: 'Release Date: ',
-                                style: DefaultTextStyle.of(context).style,
-                                children: <TextSpan>[
-                                  TextSpan(
-                                    text: movieModel.results
-                                                .elementAt(index)
-                                                .releaseDate !=
-                                            null
-                                        ? DateFormat.yMd().format(
-                                            DateTime.parse(
-                                              movieModel.results
-                                                  .elementAt(index)
-                                                  .releaseDate
-                                                  .toString(),
-                                            ),
-                                          )
-                                        : "",
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                movieModel.result
+                                    .elementAt(index)
+                                    .title
+                                    .toString(),
+                                style: const TextStyle(fontSize: 15),
+                              ),
+                              RichText(
+                                text: TextSpan(
+                                  text: 'Release Date: ',
+                                  style: DefaultTextStyle.of(context).style,
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                      text: DateFormat.yMMMd().format(
+                                        DateTime.fromMillisecondsSinceEpoch(
+                                            movieModel.result
+                                                    .elementAt(index)
+                                                    .releasedDate *
+                                                1000),
+                                      ),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                            RichText(
-                              text: TextSpan(
-                                text: 'Popularity: ',
-                                style: DefaultTextStyle.of(context).style,
-                                children: <TextSpan>[
-                                  TextSpan(
-                                    text:
-                                        "${movieModel.results.elementAt(index).popularity}",
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
+                              RichText(
+                                text: TextSpan(
+                                  text: 'Genre: ',
+                                  style: DefaultTextStyle.of(context).style,
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                      text: movieModel.result
+                                          .elementAt(index)
+                                          .genre,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                            RichText(
-                              text: TextSpan(
-                                text: 'Id: ',
-                                style: DefaultTextStyle.of(context).style,
-                                children: <TextSpan>[
-                                  TextSpan(
-                                    text:
-                                        '${movieModel.results.elementAt(index).id}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
+                              RichText(
+                                text: TextSpan(
+                                  text: 'Page Views: ',
+                                  style: DefaultTextStyle.of(context).style,
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                      text:
+                                          "${movieModel.result.elementAt(index).pageViews}",
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                            Text(
-                              'Lang: ${movieModel.results.elementAt(index).originalLanguage.toString()}',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
+                              RichText(
+                                text: TextSpan(
+                                  text: 'Director: ',
+                                  style: DefaultTextStyle.of(context).style,
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                      text: movieModel.result
+                                          .elementAt(index)
+                                          .director
+                                          .toString()
+                                          .replaceAll('[', "")
+                                          .replaceAll(']', ''),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            Text(
-                              '${movieModel.results.elementAt(index).voteAverage} Vote Avg\nVoted by ${movieModel.results.elementAt(index).voteCount} People',
-                              textAlign: TextAlign.left,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
+                              RichText(
+                                text: TextSpan(
+                                  text: 'Stars: ',
+                                  style: DefaultTextStyle.of(context).style,
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                      text:
+                                          " ${movieModel.result.elementAt(index).stars.toString().replaceAll('[', "").replaceAll(']', '')}",
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ],
                     ),

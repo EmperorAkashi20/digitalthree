@@ -35,6 +35,7 @@ class Login extends ConsumerWidget {
               child: Column(children: [
                 TextField(
                   controller: loginPvd.emailController,
+                  keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                     fillColor: Colors.grey.shade100,
                     filled: true,
